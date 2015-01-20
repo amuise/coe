@@ -20,7 +20,7 @@ import com.hortonworks.streaming.impl.topologies.TruckEventProcessorKafkaTopolog
 
 public class StormUtilsTest extends BaseUtilsTest {
 	
-	private static final String STORM_CONFIG_LOCATION = "/Users/gvetticaden/Dropbox/Hortonworks/Development/Workspaces/main/hdp-app-utils/src/test/resources/storm/storm-topology-config.properties";
+	private static final String STORM_CONFIG_LOCATION = "/Users/gvetticaden/Dropbox/Hortonworks/Development/Git/hdp-app-utils/hdp-app-utils/src/test/resources/registry/hdp-service-config.properties";
 	private static final String ACTIVE_MQ_CONNECTION_URL = "tcp://george-activemq01.cloud.hortonworks.com:61616";
 	private static final String TOPOLOGY_NAME = "truck-event-processor";
 	private static final Logger LOG = Logger.getLogger(StormUtilsTest.class);

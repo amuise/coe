@@ -7,6 +7,7 @@ import hortonworks.hdp.apputil.slider.storm.StormSliderUtils;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -26,12 +27,17 @@ import org.apache.log4j.Logger;
 public class HDPServiceRegistryImpl implements HDPServiceRegistry{
 
 	private static final Logger LOG = Logger.getLogger(HDPServiceRegistryImpl.class);
+	private static final String DEFAULT_CONFIG_NAME = "hdp-service-config.properties";
 	
 	private Map<String, String> registry = new HashMap<String, String>();
 	private String hdpServiceRegistryConfigLocation;
+	private String configFileName;
 	
-	public HDPServiceRegistryImpl(String configFileLocation) {
+	
+	
+	public HDPServiceRegistryImpl(String configFileLocation, String configName) {
 		this.hdpServiceRegistryConfigLocation = configFileLocation;
+		this.configFileName = configName;
 		this.populateRegistryFromConfigFile();
 	}
 	
@@ -86,6 +92,21 @@ public class HDPServiceRegistryImpl implements HDPServiceRegistry{
 		AmbariUtils ambariService = new AmbariUtils(ambariRestUrl);		
 		
 		populateRegistryEndpointsFromAmbari(ambariService);
+	}
+	
+	public void writeToPropertiesFile() throws Exception {
+		Map<String, String> registry = getRegistry();
+		
+		Properties properties = new Properties();
+		for(String key: registry.keySet()) {
+			String value = registry.get(key);
+			if(value != null)
+				properties.put(key, value);
+		}
+		String fullFileName = constructFullFileName(this.hdpServiceRegistryConfigLocation, this.configFileName);
+		FileOutputStream out = new FileOutputStream(fullFileName);
+		properties.store(out, null);
+		LOG.info("Finished writing new properties file ["+ fullFileName + "]" );
 	}
 
 	private void populateRegistryEndpointsFromAmbari(AmbariUtils ambariService) throws Exception {
@@ -436,16 +457,25 @@ public class HDPServiceRegistryImpl implements HDPServiceRegistry{
 	}
 
 	private InputStream createConfigInputStream() throws FileNotFoundException {
-		InputStream inputStream;
-		if(this.hdpServiceRegistryConfigLocation.startsWith("/")) {
-			inputStream = new FileInputStream(this.hdpServiceRegistryConfigLocation);
-		} else {
-			inputStream = this.getClass().getClassLoader().getResourceAsStream(this.hdpServiceRegistryConfigLocation);
+		InputStream inputStream = null;
+		String fileName = null;
+		try {
+			fileName = constructFullFileName(this.hdpServiceRegistryConfigLocation, this.configFileName);
+			inputStream = new FileInputStream(fileName);
+		} catch (FileNotFoundException e) {
+			String newfileName = constructFullFileName(this.hdpServiceRegistryConfigLocation , DEFAULT_CONFIG_NAME);
+			LOG.info("Could not load service config["+fileName + "]. Attempting to load default file["+newfileName + "]");
+			if(!DEFAULT_CONFIG_NAME.equals(configFileName)) {
+				inputStream = new FileInputStream(newfileName);
+			}
 		}
-		return inputStream;
-	}	
 		
-	
+		return inputStream;
+	}
+
+	private String constructFullFileName(String location, String fileName) {
+		return location + "/" + fileName;
+	}	
 
 	
 }

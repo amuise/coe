@@ -12,9 +12,10 @@ public abstract class BaseUtilsTest {
 	private static final String AMBARI_SERVER_URL = "http://centralregion01.cloud.hortonworks.com:8080";
 
 	protected HDPServiceRegistry createHDPServiceRegistry() throws Exception {
-		String serviceRegistryPropertyFileLocation = "/Users/gvetticaden/Dropbox/Hortonworks/Development/Workspaces/main/hdp-app-utils/src/test/resources/registry/hdp-service-config.properties";
+		String serviceRegistryPropertyFileLocation = "/Users/gvetticaden/Dropbox/Hortonworks/Development/Git/hdp-app-utils/hdp-app-utils/src/test/resources/registry";
+		String configFileName = "george-hdp-service-config.properties";
 		
-		HDPServiceRegistry serviceRegistry = new HDPServiceRegistryImpl(serviceRegistryPropertyFileLocation);
+		HDPServiceRegistry serviceRegistry = new HDPServiceRegistryImpl(serviceRegistryPropertyFileLocation, configFileName);
 		serviceRegistry.populate(createServiceRegistryParams());
 		return serviceRegistry;
 	}	

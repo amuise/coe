@@ -36,7 +36,6 @@ public interface HDPServiceRegistry {
 	
 	String getHiveServer2ConnectionURL() ;
 	
-
 	String getFalconServerUrl() ;
 	
 	String getFalconBrokerUrl() ;
@@ -59,6 +58,8 @@ public interface HDPServiceRegistry {
 	Map<String, String> getRegistry();
 
 	void populate(ServiceRegistryParams params) throws Exception;
+	
+	void writeToPropertiesFile() throws Exception;	
 
 	
 }

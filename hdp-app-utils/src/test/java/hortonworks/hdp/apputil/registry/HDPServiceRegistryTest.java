@@ -3,6 +3,7 @@ package hortonworks.hdp.apputil.registry;
 
 import java.util.List;
 
+import hortonworks.hdp.apputil.BaseUtilsTest;
 import hortonworks.hdp.apputil.slider.hbase.HBaseSliderUtilsTest;
 import hortonworks.hdp.apputil.slider.storm.StormSliderUtilsTest;
 
@@ -10,40 +11,30 @@ import org.junit.Test;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
-public class HDPServiceRegistryTest {
+public class HDPServiceRegistryTest extends BaseUtilsTest {
 	
-	private static final String REGISTRY_CONFIG_LOCATION = "/Users/gvetticaden/Dropbox/Hortonworks/Development/Workspaces/main/hdp-app-utils/src/test/resources/registry/hdp-service-config.properties";
-
+	
 	@Test
-	public void tesetPopulateRegistryFromFile() {
-		HDPServiceRegistry registry = constructHDPServiceRegistry();
+	public void tesetPopulateRegistryFromFile() throws Exception {
+		HDPServiceRegistry registry = createHDPServiceRegistry();
 	
 		assertThat(registry.getRegistry().size(), is(24));
-		assertThat(registry.getAmbariServerUrl(), is(""));
+		assertThat(registry.getAmbariServerUrl(), is("http://centralregion01.cloud.hortonworks.com:8080"));
 		assertThat(registry.getFalconServerPort(), is("15000"));
 	}
 	
 	@Test
-	public void tesetPopulateRegistryFromRelativeFile() {
-		HDPServiceRegistry registry = new HDPServiceRegistryImpl("registry/hdp-service-config.properties");
-	
-		assertThat(registry.getRegistry().size(), is(24));
-		assertThat(registry.getAmbariServerUrl(), is(""));
-		assertThat(registry.getFalconServerPort(), is("15000"));
-	}	
-	
-	@Test
 	public void testPopulateRegistryFromAmbariAndSliderHBaseAndStorm() throws Exception{
 	
-		HDPServiceRegistry registry = constructHDPServiceRegistry();
-		
-		ServiceRegistryParams params = createServiceRegistryParams();
-		
-		//populate
-		registry.populate(params);
-		
+		HDPServiceRegistry registry = createHDPServiceRegistry();
 		//do asserts
 		testEntireRegistry(registry);
+	}
+	
+	@Test
+	public void testWritingRegistryToFile() throws Exception {
+		HDPServiceRegistry registry = createHDPServiceRegistry();
+		registry.writeToPropertiesFile();
 	}
 	
 	public void testEntireRegistry(HDPServiceRegistry serviceRegistry) {
@@ -86,56 +77,8 @@ public class HDPServiceRegistryTest {
 		assertThat(serviceRegistry.getResourceManagerUIURL() , is("http://centralregion02.cloud.hortonworks.com:8088"));
 		
 		
-		assertThat(serviceRegistry.getOozieUrl() , is("http://centralregion03.cloud.hortonworks.com:11000/oozie"));
-		
-		//assertThat(serviceRegistry.getActiveMQConnectionUrl(), is("tcp://george-activemq01.cloud.hortonworks.com:61616?wireFormat.maxInactivityDuration=0"));
-		//assertThat(serviceRegistry.getActiveMQHost(),  is("george-activemq01.cloud.hortonworks.com"));
-		//assertThat(serviceRegistry.getMailSMTPHost(), is("hadoopsummit-stormapp.secloud.hortonworks.com"));	
-		//assertThat(serviceRegistry.getHueServerUrl(), is("http://centralregion10.cloud.hortonworks.com:8000"));
-		//assertThat(serviceRegistry.getRangerServerUrl() , is("http://george-security01.cloud.hortonworks.com:6080/"));
-		
-		//assertThat(serviceRegistry.getActiveMQAdminConsoleUrl() , is("http://george-activemq01.cloud.hortonworks.com:8161/admin/topics.jsp"));
-		//assertThat(serviceRegistry.getSolrAdminUrl() , is("http://george-search01.cloud.hortonworks.com:8983/solr/"));
-		//assertThat(serviceRegistry.getSolrBananaDashboardCompletedUrl() , is("http://george-search01.cloud.hortonworks.com:8983/banana/#/dashboard/solr/Truck%20Events%20Dashboard%20V4"));
-		//assertThat(serviceRegistry.getSolrBananaDashboardEmptyUrl() , is("http://george-search01.cloud.hortonworks.com:8983/banana/#/dashboard/solr/Demo%20Trucking%20Events%20Dashboard%20V3"));
-		//assertThat(serviceRegistry.getSolrDeleteTruckIndexUrl() , is("http://george-search01.cloud.hortonworks.com:8983/solr/truck_event_logs/update?stream.body=%3Cdelete%3E%3Cquery%3Eid:*%3C/query%3E%3C/delete%3E&commit=true"));
-		//assertThat(serviceRegistry.getSolrIndexPigJobHueUrl() , is("http://stormapp01.cloud.hortonworks.com:8000/pig/3"));
-		//assertThat(serviceRegistry.getSolrServerUrl(), is("http://george-search01.cloud.hortonworks.com:8983/solr"));		
-		
+		assertThat(serviceRegistry.getOozieUrl() , is("http://centralregion03.cloud.hortonworks.com:11000/oozie"));	
 	}	
 	
-	private HDPServiceRegistry constructHDPServiceRegistry() {
-		String serviceRegistryPropertyFileLocation = REGISTRY_CONFIG_LOCATION;		
-		HDPServiceRegistry registry = new HDPServiceRegistryImpl(serviceRegistryPropertyFileLocation);
-		return registry;
-	}
-
-	private ServiceRegistryParams createServiceRegistryParams() {
-		ServiceRegistryParams params = new ServiceRegistryParams();
-		params.setAmbariUrl("http://centralregion01.cloud.hortonworks.com:8080");
-		params.setClusterName("centralregioncluster");
-		
-		params.setHbaseDeploymentMode(DeploymentMode.SLIDER);
-		params.setHbaseSliderPublisherUrl(HBaseSliderUtilsTest.SLIDER_HBASE_PUBLISHER_URL);
-		params.setStormDeploymentMode(DeploymentMode.SLIDER);
-		params.setStormSliderPublisherUrl(StormSliderUtilsTest.SLIDER_STORM_PUBLISHER_URL);
-		
-//		params.setActiveMQConnectionUrl("tcp://george-activemq01.cloud.hortonworks.com:61616");
-//		params.setActiveMQHost("george-activemq01.cloud.hortonworks.com");
-//		
-//		params.setMailSmtpHost("hadoopsummit-stormapp.secloud.hortonworks.com");
-//		params.setSolrServerUrl("http://george-search01.cloud.hortonworks.com:8983/solr");
-//		
-//
-//		params.setHueServerUrl("http://centralregion10.cloud.hortonworks.com:8000");
-//		params.setRangerServerUrl("http://george-security01.cloud.hortonworks.com:6080/");
-//		params.setActiveMQConsoleUrl("http://george-activemq01.cloud.hortonworks.com:8161/admin/topics.jsp");
-//		params.setSolrAdminUrl("http://george-search01.cloud.hortonworks.com:8983/solr/");
-//		params.setBananaDashboardCompletedUrl("http://george-search01.cloud.hortonworks.com:8983/banana/#/dashboard/solr/Truck%20Events%20Dashboard%20V4");
-//		params.setBananaDashboardEmptyUrl("http://george-search01.cloud.hortonworks.com:8983/banana/#/dashboard/solr/Demo%20Trucking%20Events%20Dashboard%20V3");
-//		params.setDeleteTruckIndexUrl("http://george-search01.cloud.hortonworks.com:8983/solr/truck_event_logs/update?stream.body=%3Cdelete%3E%3Cquery%3Eid:*%3C/query%3E%3C/delete%3E&commit=true");
-//		params.setSolrIndexPigJobHueUrl("http://stormapp01.cloud.hortonworks.com:8000/pig/3");
-		return params;
-	}		
-
+	
 }
